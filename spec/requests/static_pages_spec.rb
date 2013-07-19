@@ -14,7 +14,7 @@ describe StaticPagesController do
     before { visit root_path }
 
     let(:title_info) { full_title("") }
-    let(:head_info) { "Home" }
+    let(:head_info) { "Welcome to the Sample App" }
 
     it_should_behave_like "all_pages"
   end

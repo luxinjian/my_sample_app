@@ -15,5 +15,6 @@
 /tmp
 
 #Ignore temp file
-.swp
+*.swp
+*~
 .swap
