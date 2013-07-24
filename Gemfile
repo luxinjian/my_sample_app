@@ -1,8 +1,11 @@
 source 'http://ruby.taobao.org'
 
 gem 'rails', '3.2.13'
-gem 'bootstrap-sass'
+gem 'bootstrap-sass', '~> 2.3.0.1'
 gem 'bcrypt-ruby'
+gem 'faker'
+gem 'will_paginate'
+gem 'bootstrap-will_paginate'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
@@ -33,6 +36,9 @@ group :test do
   #This is for spork
   gem 'guard-spork'
   gem 'spork'
+
+  #This is for factory-girl
+  gem 'factory_girl_rails'
 end
 
 gem 'jquery-rails'
