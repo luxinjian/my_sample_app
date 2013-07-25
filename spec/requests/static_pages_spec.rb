@@ -17,6 +17,44 @@ describe StaticPagesController do
     let(:head_info) { "Welcome to the Sample App" }
 
     it_should_behave_like "all_pages"
+
+    describe "micropost" do
+      let(:user) { FactoryGirl.create(:user) }
+      let!(:mp) { FactoryGirl.create(:micropost, user: user) }
+      before do
+        sign_in user
+        visit root_path
+      end
+
+      it { should have_selector('h1', text: user.name) }
+      it { should have_link('view my profile', href: user_path(user)) }
+      it { should have_content('1 micropost') }
+      it { should have_button('Post') }
+
+      it "should not change microposts count" do
+        expect do
+          click_button "Post"
+        end.not_to change(Micropost, :count)
+      end
+
+      it "should have error message" do
+        click_button "Post"
+        page.should have_content('error')
+      end
+
+      describe "feed item" do
+        it { should have_content(mp.content) }
+        it { should have_link('delete') }
+
+        describe "after click 'delete' link" do
+          it "should change microposts count by -1" do
+            expect do
+              click_link 'delete'
+            end.to change(Micropost, :count).by(-1)
+          end
+        end
+      end
+    end
   end
 
   describe "'help' page" do

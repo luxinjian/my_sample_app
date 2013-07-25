@@ -117,11 +117,25 @@ describe SessionsController do
           let(:admin) { FactoryGirl.create(:admin) }
           before do
             sign_in admin
-            user.toggle(:admin)
+            user.toggle!(:admin)
             delete user_path(user)
           end
 
           specify { response.should redirect_to(root_path) }
+        end
+      end
+
+      describe "in Micropost's controller" do
+
+        describe "when post to micropost's create action" do
+          before { post microposts_path }
+          specify { response.should redirect_to(signin_path) }
+        end
+
+        describe "when delete to micropost's destroy action" do
+          let(:micropost) { FactoryGirl.create(:micropost) }
+          before { delete micropost_path(micropost) }
+          specify { response.should redirect_to(signin_path) }
         end
       end
     end

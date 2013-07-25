@@ -7,6 +7,8 @@ class User < ActiveRecord::Base
     create_remember_token
   end
 
+  has_many :microposts, dependent: :destroy
+
   validates :name, presence: true, length: { maximum: 50 }
   EMAIL_FORMAT = /\A[\w+\-]+@[a-z\d\-]+\.[a-z]+\Z/i
   validates :email, presence: true, format: { with: EMAIL_FORMAT },
@@ -16,5 +18,9 @@ class User < ActiveRecord::Base
 
   def create_remember_token
     self.remember_token = SecureRandom.urlsafe_base64
+  end
+
+  def feed
+    self.microposts
   end
 end

@@ -51,7 +51,9 @@ describe UsersController do
   end
 
   describe "'show' page" do
-    let(:user) { FactoryGirl.create(:user) }
+    let!(:user) { FactoryGirl.create(:user) }
+    let!(:mp1) { FactoryGirl.create(:micropost, user: user) }
+    let!(:mp2) { FactoryGirl.create(:micropost, user: user) }
     before do
       sign_in user
       visit user_path(user)
@@ -59,6 +61,23 @@ describe UsersController do
 
     it { should have_selector('h1', text: user.name) }
     it { should have_selector('title', text: user.name) }
+
+    describe "micropost show" do
+      it { should have_selector('h3', text: "Microposts") }
+      it { should have_content(mp1.content) }
+      it { should have_content(mp2.content) }
+      it { should have_content(user.microposts.count) }
+
+      it { should have_link('delete') }
+
+      describe "after click 'delete' link" do
+        it "should change microposts count by -1" do
+          expect do
+            click_link 'delete'
+          end.to change(Micropost, :count).by(-1)
+        end
+      end
+    end
   end
 
   describe "'edit' page" do
@@ -97,7 +116,8 @@ describe UsersController do
   end
 
   describe "'index' page" do
-    let(:user) { FactoryGirl.create(:user) }
+    let!(:user) { FactoryGirl.create(:user) }
+    let!(:another) { FactoryGirl.create(:user) }
     before do
       sign_in user
       visit users_path
@@ -111,30 +131,26 @@ describe UsersController do
       end
     end
 
-#    it { should have_selector('div.pagination') }
-#
-#    describe "delete link" do
-#      let(:another) { FactoryGirl.create(:user) }
-#      before { user.toggle!(:admin) }
-#
-#      specify { user.should be_admin }
-#      it { should have_link('delete') }
-#    end
+    #it { should have_selector('div.pagination') }
+
+    describe "delete link" do
+      before { user.toggle!(:admin) }
+      #it { should have_link('delete') }
+    end
   end
 
-#  describe "'destroy' action" do
-#    let(:admin) { FactoryGirl.create(:user) }
-#    let(:another) { FactoryGirl.create(:user) }
-#    before do
-#      admin.toggle!(:admin)
-#      sign_in admin
-#      visit users_path
-#    end
-#
-#    it "should change users count by -1" do
-#      expect do
-#        click_link 'delete'
-#      end.to change(User, :count).by(-1)
-#    end
-#  end
+  describe "'destroy' action" do
+    let(:admin) { FactoryGirl.create(:admin) }
+    let!(:another) { FactoryGirl.create(:user) }
+    before do
+      sign_in admin
+      visit users_path
+    end
+
+    it "should change users count by -1" do
+      expect do
+        click_link 'delete'
+      end.to change(User, :count).by(-1)
+    end
+  end
 end

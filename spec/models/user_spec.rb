@@ -18,6 +18,8 @@ describe User do
   it { should respond_to(:create_remember_token) }
   it { should respond_to(:admin) }
   it { should_not be_admin }
+  it { should respond_to(:microposts) }
+  it { should respond_to(:feed) }
 
   describe "toggle admin attribute" do
     before { @user.toggle(:admin) }
@@ -84,5 +86,32 @@ describe User do
   describe "when password and password_confirmation is not equal" do
     before { @user.password = "wrong" }
     it { should_not be_valid }
+  end
+
+  describe "micropost association" do
+    before { @user.save }
+    let!(:mp1) { FactoryGirl.create(:micropost, user: @user, created_at: 1.day.ago) }
+    let!(:mp2) { FactoryGirl.create(:micropost, user: @user, created_at: 1.hour.ago) }
+
+    it "should have right micropost in right order" do
+      @user.microposts.should == [mp2, mp1]
+    end
+
+    describe "when user was destroy" do
+      let(:microposts) { @user.microposts }
+      before { @user.destroy }
+
+      it "should not be valid" do
+        microposts.each do |m|
+          Micropost.find(m.id).should_not be_valid
+        end
+      end
+    end
+  end
+
+  describe "feed" do
+    before { @user.save }
+    let!(:mp) { FactoryGirl.create(:micropost, user: @user) }
+    its(:feed) { should include(mp) }
   end
 end
