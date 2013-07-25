@@ -82,6 +82,24 @@ describe SessionsController do
           specify { response.should redirect_to(signin_path) }
         end
       end
+
+      describe "in Relationship's controller" do
+
+        describe "when visit user's show page" do
+          it { should_not have_button('Follow') }
+          it { should_not have_button('Unfollow') }
+        end
+
+        describe "when post to relationship's create action" do
+          before { post relationships_path }
+          specify { response.should redirect_to(signin_path) }
+        end
+
+        describe "when delete to relationship's destroy action" do
+          before { delete relationship_path(1) }
+          specify { response.should redirect_to(signin_path) }
+        end
+      end
     end
 
     describe "with sign_in state" do

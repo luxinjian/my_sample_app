@@ -153,4 +153,56 @@ describe UsersController do
       end.to change(User, :count).by(-1)
     end
   end
+
+  describe "follow/unfollow button" do
+    let(:user) { FactoryGirl.create(:user) }
+    let(:follower) { FactoryGirl.create(:user) }
+    before do
+      sign_in follower
+      visit user_path(user)
+    end
+
+    it { should have_button('Follow') }
+
+    describe "after following" do
+      before { click_button 'Follow' }
+
+      it { should have_button('Unfollow') }
+      specify { follower.should be_following(user) }
+    end
+
+    describe "after unfollow" do
+      before do
+        follower.follow!(user)
+        visit user_path(user)
+        click_button 'Unfollow'
+      end
+
+      it { should have_button('Follow') }
+    end
+  end
+
+  describe "followers page" do
+    let(:user) { FactoryGirl.create(:user) }
+    let(:follower) { FactoryGirl.create(:user) }
+    before do
+      follower.follow!(user)
+      sign_in user
+      visit followers_user_path(user)
+    end
+
+    it { should have_selector('li', text: follower.name) }
+  end
+
+  describe "following page" do
+    let(:user) { FactoryGirl.create(:user) }
+    let(:followed) { FactoryGirl.create(:user) }
+    before do
+      user.follow!(followed)
+      sign_in user
+      visit following_user_path(user)
+    end
+
+    it { should have_selector('li', text: followed.name) }
+  end
 end

@@ -8,8 +8,14 @@
         <%= @user.name %>
     </h1>
     </section>
+    <section>
+    <%= render 'shared/stats' %>
+    </section>
     </aside>
     <div class="span8">
+        <% if signed_in? %>
+            <%= render 'follow_form' %>
+        <% end %>
         <% if @microposts.any? %>
             <h3>Microposts(<%= @microposts.count %>)</h3>
             <ol class="microposts">

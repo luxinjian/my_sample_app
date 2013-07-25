@@ -20,6 +20,12 @@ describe User do
   it { should_not be_admin }
   it { should respond_to(:microposts) }
   it { should respond_to(:feed) }
+  it { should respond_to(:relationships) }
+  it { should respond_to(:followed_users) }
+  it { should respond_to(:followers) }
+  it { should respond_to(:follow!) }
+  it { should respond_to(:unfollow!) }
+  it { should respond_to(:following?) }
 
   describe "toggle admin attribute" do
     before { @user.toggle(:admin) }
@@ -113,5 +119,31 @@ describe User do
     before { @user.save }
     let!(:mp) { FactoryGirl.create(:micropost, user: @user) }
     its(:feed) { should include(mp) }
+  end
+
+  describe "relationships" do
+    before { @user.save }
+    let(:followed) { FactoryGirl.create(:user) }
+    let!(:relationship) { @user.follow!(followed) }
+
+    its(:followed_users) { should include(followed) }
+    specify { followed.followers.should include(@user) }
+
+    describe "when follower is destroyed" do
+      before { @user.destroy }
+      specify { Relationship.find_by_id(relationship.id).should be_nil }
+    end
+
+    describe "when followed is destroyed" do
+      before { followed.destroy }
+      specify { Relationship.find_by_id(relationship.id).should be_nil }
+    end
+
+    describe "after unfollow user" do
+      before { @user.unfollow!(followed) }
+    its(:followed_users) { should_not include(followed) }
+    specify { followed.followers.should_not include(@user) }
+    specify { @user.following?(followed).should be_false }
+    end
   end
 end

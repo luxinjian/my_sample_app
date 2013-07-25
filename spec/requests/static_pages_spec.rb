@@ -43,6 +43,10 @@ describe StaticPagesController do
       end
 
       describe "feed item" do
+        let(:other) { FactoryGirl.create(:user) }
+        let!(:other_mp) { FactoryGirl.create(:micropost,
+                                             content: "other content", user: other) }
+
         it { should have_content(mp.content) }
         it { should have_link('delete') }
 
@@ -53,7 +57,30 @@ describe StaticPagesController do
             end.to change(Micropost, :count).by(-1)
           end
         end
+
+        it { should_not have_content(other_mp.content) }
+
+        describe "after following other user" do
+          before do
+            user.follow!(other)
+            visit root_path
+          end
+          it { should have_content(other_mp.content) }
+        end
       end
+    end
+
+    describe "stats" do
+      let(:user) { FactoryGirl.create(:user) }
+      let!(:followed) { FactoryGirl.create(:user) }
+      before do
+        user.follow!(followed)
+        sign_in user
+        visit root_path
+      end
+
+      it { should have_link('0 followers', href: followers_user_path(user)) }
+      it { should have_link('1 following', href: following_user_path(user)) }
     end
   end
 
