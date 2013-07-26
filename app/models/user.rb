@@ -11,7 +11,7 @@ class User < ActiveRecord::Base
   has_many :relationships, dependent: :destroy, foreign_key: "follower_id"
   has_many :followed_users, through: :relationships, source: "followed"
   has_many :reverse_relationships, dependent: :destroy,
-    foreign_key: :followed_id, class_name: "Relationship"
+    foreign_key: "followed_id", class_name: "Relationship"
   has_many :followers, through: :reverse_relationships, source: :follower
 
   validates :name, presence: true, length: { maximum: 50 }
@@ -30,7 +30,7 @@ class User < ActiveRecord::Base
   end
 
   def follow!(followed)
-    relationships.create!(followed_id: followed.id)
+    self.relationships.create!(followed_id: followed.id)
   end
 
   def unfollow!(followed)
